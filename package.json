@@ -6,7 +6,8 @@
   "scripts": {
     "postinstall": "npm run build",
     "start": "node out/index.js",
-    "build": "tsc -p ."
+    "build": "tsc -p .",
+    "dev": "nodemon src/index.ts"
   },
   "dependencies": {
     "express": "*"
@@ -16,6 +17,8 @@
   },
   "devDependencies": {
     "@types/express": "*",
+    "nodemon": "3.1.7",
+    "ts-node": "10.9.2",
     "typescript": "*"
   }
 }
