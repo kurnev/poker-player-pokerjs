@@ -7,7 +7,7 @@ export class Player {
     const cards = gameState.players.find(
       (player: any) => player.name === "PokerJS",
     )?.hole_cards;
-    if (!cards) {
+    if (!cards?.length) {
       betCallback(0);
       return;
     }
@@ -15,10 +15,10 @@ export class Player {
       method: "POST",
       body: JSON.stringify({ cards }),
     });
-    await result.json();
-    console.error("result", JSON.stringify(result, null, 4));
+    const data = await result.json();
+    console.error("result", data);
     // @ts-ignore
-    if (result && result.rank >= 1) {
+    if (data && data.rank >= 1) {
       betCallback(50);
     } else {
       betCallback(0);
@@ -28,6 +28,10 @@ export class Player {
 
   public showdown(gameState: any): void {
     console.error("showdown", JSON.stringify(gameState, null, 4));
+  }
+
+  public gwenanMethod(): void {
+    // stuff
   }
 }
 
