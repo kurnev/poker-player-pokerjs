@@ -8,15 +8,12 @@ export class Player {
     gameState: any,
     betCallback: (bet: number) => void,
   ): Promise<void> {
+    console.error("gameState", JSON.stringify(gameState, null, 4));
 
     const cards = this.getHoleCards(gameState);
-
-    const stack = gameState.players.find(
-      (player: any) => player.name === "PokerJS",
-    )?.stack || 0;
     
-    if (cards[0] && cards[1] && stack && this.doWePlayIt(cards[0], cards[1]) ) {
-      betCallback(stack)
+    if (cards[0] && cards[1] && this.doWePlayIt(cards[0], cards[1]) ) {
+      betCallback(this.goAllIn(gameState))
     } else {
       betCallback(0)
     }
@@ -34,8 +31,6 @@ export class Player {
       return true;
     }
     
-    const highHighCards = ['A', 'K', 'Q', 'J']
-
     // AK AQ AJ KQ
     if (cardA.rank === 'A' && cardB.rank === 'K') { return true; }
     if (cardA.rank === 'A' && cardB.rank === 'Q') { return true; }
@@ -49,6 +44,19 @@ export class Player {
     if (cardB.rank === 'K' && cardA.rank === 'Q') { return true; }
 
     return false;
+  }
+
+  stealBlind(gameState: any) {
+    // We are 7
+    if (gameState.dealer === 7) {
+
+    }
+  }
+
+  minBet(gameState: any) {
+    
+
+    return 0 
   }
 
   oneOfCardContains(cardA: Card, cardB: Card, rank: string) {
@@ -72,8 +80,10 @@ export class Player {
     console.error("showdown", JSON.stringify(gameState, null, 4));
   }
 
-  public goAllIn(): void {
-    
+  public goAllIn(gameState: any): number {
+    return gameState.players.find(
+      (player: any) => player.name === "PokerJS",
+    )?.stack || 0;
   }
 
   getHoleCards(gameState: any): Card[] {
