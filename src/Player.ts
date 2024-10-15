@@ -30,20 +30,8 @@ export class Player {
       if (highCards.includes(cardA.rank) || middleCards.includes(cardA.rank)) return true;
     }
 
-    if (this.oneOfCardContains(cardA, cardB, 'A') &&  this.suitedCard(cardA, cardB)) {
-      return true
-    }
-
-    if (this.oneOfCardContains(cardA, cardB, 'K') && this.suitedCard(cardA, cardB)) {
-      return true
-    }
-
-    if (this.oneOfCardContains(cardA, cardB, 'Q') && this.suitedCard(cardA, cardB)) {
-      return true
-    }
-
-    if (this.oneOfCardContains(cardA, cardB, 'J') && this.suitedCard(cardA, cardB)) {
-      return true
+    if (highCards.includes(cardA.rank) && highCards.includes(cardB.rank) && this.suitedCard(cardA, cardB)) {
+      return true;
     }
 
     return false;
