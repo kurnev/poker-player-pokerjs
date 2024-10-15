@@ -15,6 +15,9 @@ export class Player {
     const result = await fetch(url, {
       method: "POST",
       body: JSON.stringify({ cards }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
     const data = await result.json();
     console.log("data", data);
