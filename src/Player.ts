@@ -9,9 +9,7 @@ export class Player {
     betCallback: (bet: number) => void,
   ): Promise<void> {
 
-    const cards = gameState.players.find(
-      (player: any) => player.name === "PokerJS",
-    )?.hole_cards || [];
+    const cards = this.getHoleCards(gameState);
 
     const stack = gameState.players.find(
       (player: any) => player.name === "PokerJS",
@@ -19,13 +17,23 @@ export class Player {
     
     if (cards[0] && cards[1] && stack && this.doWePlayIt(cards[0], cards[1]) ) {
       betCallback(stack)
+    } else {
+      betCallback(0)
     }
   }
-
   doWePlayIt(cardA: Card, cardB: Card) {
-    if (cardA.rank === cardB.rank) return true
-    return false
+    const numbers = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+    if (cardA.rank === cardB.rank) {
+      if (Number.isInteger(cardA.rank)) {
+        const rank = cardA.rank as unknown as number;
+        if (numbers.includes(rank)) return true;
+      }
+      return true;
+    }
+
+    return false;
   }
+
 
   public showdown(gameState: any): void {
     console.error("showdown", JSON.stringify(gameState, null, 4));
@@ -35,11 +43,15 @@ export class Player {
     
   }
 
-  async sendRankReq(gameState: any): Promise<any> {
-    const url = "https://rainman.leanpoker.org/rank";
-    const holeCards = gameState.players.find(
+  getHoleCards(gameState: any): Card[] {
+    return gameState.players.find(
       (player: any) => player.name === "PokerJS",
     )?.hole_cards || [];
+  }
+
+  async sendRankReq(gameState: any): Promise<any> {
+    const url = "https://rainman.leanpoker.org/rank";
+    const holeCards = this.getHoleCards(gameState);
     console.error("cards", JSON.stringify({ cards: holeCards }));
 
     const comCards = gameState?.community_cards || [];
