@@ -1,3 +1,8 @@
+type Card = {
+  rank: string;
+  suit: string;
+};
+
 export class Player {
   public async betRequest(
     gameState: any,
@@ -18,6 +23,10 @@ export class Player {
       betCallback(0);
     }
   }
+
+  rankTwoCards(cards: Array<Card>) {}
+
+  rankAllCards(cards: Array<Card>) {}
 
   public showdown(gameState: any): void {
     console.error("showdown", JSON.stringify(gameState, null, 4));
