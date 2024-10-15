@@ -30,8 +30,40 @@ export class Player {
       }
       return true;
     }
+  
+    if (this.oneOfCardContains(cardA, cardB, 'A') && this.suitedCard(cardA, cardB)) {
+      return true
+    }
+
+    if (this.oneOfCardContains(cardA, cardB, 'K') && this.suitedCard(cardA, cardB)) {
+      return true
+    }
+
+    if (this.oneOfCardContains(cardA, cardB, 'Q') && this.suitedCard(cardA, cardB)) {
+      return true
+    }
+
+    if (this.oneOfCardContains(cardA, cardB, 'J') && this.suitedCard(cardA, cardB)) {
+      return true
+    }
 
     return false;
+  }
+
+  oneOfCardContains(cardA: Card, cardB: Card, rank: string) {
+    if (cardA.rank === rank || cardB.rank === rank) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  suitedCard(cardA: Card, cardB: Card) {
+    if (cardA.suit === cardB.suit) {
+      return true
+    } else {
+      return false
+    }
   }
 
 
