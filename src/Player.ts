@@ -28,7 +28,7 @@ export class Player {
         const rank = cardA.rank as unknown as number;
         if (numbers.includes(rank)) return true;
       }
-      return true;
+      return false;
     }
   
     if (this.oneOfCardContains(cardA, cardB, 'A') && this.suitedCard(cardA, cardB)) {
