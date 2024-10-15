@@ -22,16 +22,15 @@ export class Player {
     }
   }
   doWePlayIt(cardA: Card, cardB: Card) {
-    const numbers = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+    const highCards = ['A', 'K', 'Q', 'J', '10']
+    const middleCards = ['7', '8', '9'];
+    const lowCards = ['2', '3', '4', '5', '6'];
+    
     if (cardA.rank === cardB.rank) {
-      if (Number.isInteger(cardA.rank)) {
-        const rank = cardA.rank as unknown as number;
-        if (numbers.includes(rank)) return true;
-      }
-      return false;
+      if (highCards.includes(cardA.rank) || middleCards.includes(cardA.rank)) return true;
     }
-  
-    if (this.oneOfCardContains(cardA, cardB, 'A') && this.suitedCard(cardA, cardB)) {
+
+    if (this.oneOfCardContains(cardA, cardB, 'A') &&  this.suitedCard(cardA, cardB)) {
       return true
     }
 
