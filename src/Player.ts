@@ -7,20 +7,21 @@ export class Player {
     const cards = gameState.players.find(
       (player: any) => player.name === "PokerJS",
     )?.hole_cards;
-    console.error("cards", cards);
+    console.error("cards", JSON.stringify({ cards }));
+
+    let formData = new FormData();
+    formData.append("cards", JSON.stringify(cards));
+
     if (!cards?.length) {
       betCallback(0);
       return;
     }
     const result = await fetch(url, {
       method: "POST",
-      body: JSON.stringify({ cards }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      body: formData,
     });
     const data = await result.json();
-    console.log("data", data);
+    console.error("data", data);
     console.error("result", data);
     // @ts-ignore
     if (data && data.rank >= 1) {
