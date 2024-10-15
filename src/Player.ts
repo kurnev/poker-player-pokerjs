@@ -33,6 +33,20 @@ export class Player {
     if (highCards.includes(cardA.rank) && highCards.includes(cardB.rank) && this.suitedCard(cardA, cardB)) {
       return true;
     }
+    
+    const highHighCards = ['A', 'K', 'Q', 'J']
+
+    // AK AQ AJ KQ
+    if (cardA.rank === 'A' && cardB.rank === 'K') { return true; }
+    if (cardA.rank === 'A' && cardB.rank === 'Q') { return true; }
+    if (cardA.rank === 'A' && cardB.rank === 'J') { return true; }
+    if (cardA.rank === 'K' && cardB.rank === 'Q') { return true; }
+    
+    // KA QA JA QK
+    if (cardB.rank === 'A' && cardA.rank === 'K') { return true; }
+    if (cardB.rank === 'A' && cardA.rank === 'Q') { return true; }
+    if (cardB.rank === 'A' && cardA.rank === 'J') { return true; }
+    if (cardB.rank === 'K' && cardA.rank === 'Q') { return true; }
 
     return false;
   }
