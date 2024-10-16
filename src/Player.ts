@@ -1,16 +1,53 @@
-type Card = {
-  rank: string
-  suit: string
-}
+type CardType = {
+  rank: string;
+  suit: string;
+};
+
+type PlayerType = {
+  id: number;
+  name: string;
+  status: 'active' | 'folded' | 'out';
+  version: string;
+  stack: number;
+  bet: number;
+  hole_cards?: CardType[];
+};
+
+type GameState = {
+  tournament_id: string;
+  game_id: string;
+  round: number;
+  bet_index: number;
+  small_blind: number;
+  current_buy_in: number;
+  pot: number;
+  minimum_raise: number;
+  dealer: number;
+  orbits: number;
+  in_action: number;
+  players: PlayerType[];
+  community_cards: CardType[];
+};
 
 export class Player {
   public async betRequest(
     gameState: any,
     betCallback: (bet: number) => void,
   ): Promise<void> {
+    this.version1(gameState, betCallback)
+  }
+
+  version1(gameState: any, betCallback: (bet: number ) => void) {
     console.error("gameState", JSON.stringify(gameState, null, 4));
+    // if (gameState.round === 4)
+    // 
 
     const cards = this.getHoleCards(gameState);
+    const communityCards = gameState.community_cards;
+
+    // if (communityCards.length > 0) {
+    //   return this.postFlop(gameState);
+    // }
     
     if (cards[0] && cards[1] && this.doWePlayIt(cards[0], cards[1]) ) {
       betCallback(this.goAllIn(gameState))
@@ -18,7 +55,7 @@ export class Player {
       betCallback(0)
     }
   }
-  doWePlayIt(cardA: Card, cardB: Card) {
+  doWePlayIt(cardA: CardType, cardB: CardType) {
     const highCards = ['A', 'K', 'Q', 'J', '10']
     const middleCards = ['7', '8', '9'];
     const lowCards = ['2', '3', '4', '5', '6'];
@@ -46,10 +83,13 @@ export class Player {
     return false;
   }
 
+  postFlop(gameState: any) {
+  }
+
   stealBlind(gameState: any) {
     // We are 7
     if (gameState.dealer === 7) {
-
+      
     }
   }
 
@@ -59,7 +99,7 @@ export class Player {
     return 0 
   }
 
-  oneOfCardContains(cardA: Card, cardB: Card, rank: string) {
+  oneOfCardContains(cardA: CardType, cardB: CardType, rank: string) {
     if (cardA.rank === rank || cardB.rank === rank) {
       return true
     } else {
@@ -67,7 +107,7 @@ export class Player {
     }
   }
 
-  suitedCard(cardA: Card, cardB: Card) {
+  suitedCard(cardA: CardType, cardB: CardType) {
     if (cardA.suit === cardB.suit) {
       return true
     } else {
@@ -80,13 +120,17 @@ export class Player {
     console.error("showdown", JSON.stringify(gameState, null, 4));
   }
 
+/*   public call(gameState: any): number {
+    return gameState.
+  } */
+
   public goAllIn(gameState: any): number {
     return gameState.players.find(
       (player: any) => player.name === "PokerJS",
     )?.stack || 0;
   }
 
-  getHoleCards(gameState: any): Card[] {
+  getHoleCards(gameState: any): CardType[] {
     return gameState.players.find(
       (player: any) => player.name === "PokerJS",
     )?.hole_cards || [];

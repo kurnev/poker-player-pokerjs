@@ -16,11 +16,7 @@
         "bet":0,
         "hole_cards":[
             {"rank":"5","suit":"diamonds"},
-            {"rank":"6","suit":"diamonds"},
-            {"rank":"7","suit":"diamonds"},
-            {"rank":"7","suit":"spades"},
-            {"rank":"8","suit":"diamonds"},
-            {"rank":"9","suit":"diamonds"}
+            {"rank":"6","suit":"diamonds"}
         ],
         "version":"Version name 2",
         "id":1
