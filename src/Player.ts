@@ -54,6 +54,7 @@ export class Player {
   }
 
   async version2(gameState: GameState, betCallback: (bet: number ) => void) {
+    console.error("gameState", JSON.stringify(gameState, null, 4));
     const { selfPlayer, holeCards, communityCards, blindStealingPosition, preFlop, postFlop, nobodyPlayedPostFlop } = readGameState(gameState)
     if (postFlop) {
       return await this.postFlop(gameState, betCallback, blindStealingPosition, nobodyPlayedPostFlop);
@@ -89,6 +90,40 @@ export class Player {
     return false;
   }
 
+  doWePlayIt2(cardA: CardType, cardB: CardType) {
+    const highCards = ['A', 'K', 'Q', 'J', '10'];
+    
+    if (cardA.rank === cardB.rank) {
+      return true;
+    }
+
+    if (cardA.rank === 'A' || cardB.rank === 'A') {
+      return true;
+    }
+
+    if (cardA.rank === 'K' || cardB.rank === 'K') {
+      return true;
+    }
+
+    if (highCards.includes(cardA.rank) && highCards.includes(cardB.rank) && this.suitedCard(cardA, cardB)) {
+      return true;
+    }
+    
+    // AK AQ AJ KQ
+    if (cardA.rank === 'A' && cardB.rank === 'K') { return true; }
+    if (cardA.rank === 'A' && cardB.rank === 'Q') { return true; }
+    if (cardA.rank === 'A' && cardB.rank === 'J') { return true; }
+    if (cardA.rank === 'K' && cardB.rank === 'Q') { return true; }
+    
+    // KA QA JA QK
+    if (cardB.rank === 'A' && cardA.rank === 'K') { return true; }
+    if (cardB.rank === 'A' && cardA.rank === 'Q') { return true; }
+    if (cardB.rank === 'A' && cardA.rank === 'J') { return true; }
+    if (cardB.rank === 'K' && cardA.rank === 'Q') { return true; }
+
+    return false;
+  }
+
   preFlop(gameState: GameState, betCallback: (bet: number ) => void) {
     const { blindStealingPosition } = readGameState(gameState)
     const cards = this.getHoleCards(gameState);
@@ -100,6 +135,10 @@ export class Player {
       // v2 change: check if nobody played
       if (blindStealingPosition && pot === small_blind + small_blind * 2) {
         betCallback(minimum_raise)
+        return
+      }
+      if (this.positionOneHasPlayed(gameState) && this.doWePlayIt2(cards[0], cards[1]) ) {
+        betCallback(this.getAllInAmount(gameState))
         return
       }
       betCallback(0)
@@ -139,7 +178,16 @@ export class Player {
   }
 
   positionOneHasPlayed(gameState: GameState) {
-   
+    // id 6
+    const topPlayer = gameState.players.find(player => player.id === 6)
+    if (topPlayer) {
+      const { status, bet } = topPlayer
+
+      if (status === 'active' && bet > 0) {
+        return true
+      } 
+    }
+    return false
   }
 
   public showdown(gameState: any): void {

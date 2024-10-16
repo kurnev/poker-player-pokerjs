@@ -1,7 +1,7 @@
 import express from 'express';
 import { Player } from './Player';
 
-const VERSION = "PokerJS 4.0";
+const VERSION = "PokerJS 5.0";
 
 const app = express();
 const player = new Player();
