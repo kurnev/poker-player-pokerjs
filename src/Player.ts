@@ -108,9 +108,11 @@ export class Player {
 
   async postFlop(gameState: GameState, betCallback: (bet: number ) => void, blindStealingPosition: boolean, nobodyPlayedPostFlop: boolean) {
     const rank = await this.getRanking(gameState)
+
+    const communityRank = await this.getCommunityRanking(gameState)
     // steal the blind if nobody played
 
-    if (rank > 1) {
+    if (rank > 1 && rank > communityRank) {
       betCallback(this.getAllInAmount(gameState))
     } else if (nobodyPlayedPostFlop) {
       betCallback(gameState.small_blind * 2)
@@ -136,9 +138,13 @@ export class Player {
     }
   }
 
+  positionOneHasPlayed(gameState: GameState) {
+   
+  }
 
   public showdown(gameState: any): void {
     console.error("showdown", JSON.stringify(gameState, null, 4));
+
   }
 
 /*   public call(gameState: any): number {
@@ -178,6 +184,31 @@ export class Player {
         });
         const data = await result.json();
         console.error("ranking data", JSON.stringify(data, null, 4));
+        return data?.rank;
+      } catch (err) {
+        console.error('rank', err)
+      }
+     
+    }
+
+    return 0;
+  }
+
+  async getCommunityRanking(gameState: any): Promise<number> {
+    const url = "https://rainman.leanpoker.org/rank";
+    const comCards = this.getComCards(gameState);
+
+    let formData = new FormData();
+    formData.append("cards", JSON.stringify(comCards));
+
+    if (comCards.length >= 5) {
+      try {
+        const result = await fetch(url, {
+          method: "POST",
+          body: formData,
+        });
+        const data = await result.json();
+        console.error("community ranking data", JSON.stringify(data, null, 4));
         return data?.rank;
       } catch (err) {
         console.error('rank', err)
