@@ -1,9 +1,11 @@
-type CardType = {
+import { readGameState } from "./gameState";
+
+export type CardType = {
   rank: string;
   suit: string;
 };
 
-type PlayerType = {
+export type PlayerType = {
   id: number;
   name: string;
   status: 'active' | 'folded' | 'out';
@@ -13,7 +15,7 @@ type PlayerType = {
   hole_cards?: CardType[];
 };
 
-type GameState = {
+export type GameState = {
   tournament_id: string;
   game_id: string;
   round: number;
@@ -31,30 +33,34 @@ type GameState = {
 
 export class Player {
   public async betRequest(
-    gameState: any,
+    gameState: GameState,
     betCallback: (bet: number) => void,
   ): Promise<void> {
-    this.version1(gameState, betCallback)
+    // this.version1(gameState, betCallback)
+    await this.version2(gameState, betCallback)
   }
 
-  version1(gameState: any, betCallback: (bet: number ) => void) {
+  version1(gameState: GameState, betCallback: (bet: number ) => void) {
     console.error("gameState", JSON.stringify(gameState, null, 4));
-    // if (gameState.round === 4)
-    // 
 
     const cards = this.getHoleCards(gameState);
     const communityCards = gameState.community_cards;
 
-    // if (communityCards.length > 0) {
-    //   return this.postFlop(gameState);
-    // }
-    
     if (cards[0] && cards[1] && this.doWePlayIt(cards[0], cards[1]) ) {
-      betCallback(this.goAllIn(gameState))
+      betCallback(this.getAllInAmount(gameState))
     } else {
       betCallback(0)
     }
   }
+
+  async version2(gameState: GameState, betCallback: (bet: number ) => void) {
+    const { selfPlayer, holeCards, communityCards, blindStealingPosition, preFlop, postFlop, nobodyPlayedPostFlop } = readGameState(gameState)
+    if (postFlop) {
+      return await this.postFlop(gameState, betCallback, blindStealingPosition, nobodyPlayedPostFlop);
+    }
+    return this.preFlop(gameState, betCallback);
+  }
+
   doWePlayIt(cardA: CardType, cardB: CardType) {
     const highCards = ['A', 'K', 'Q', 'J', '10']
     const middleCards = ['7', '8', '9'];
@@ -83,20 +89,35 @@ export class Player {
     return false;
   }
 
-  postFlop(gameState: any) {
-  }
-
-  stealBlind(gameState: any) {
-    // We are 7
-    if (gameState.dealer === 7) {
-      
+  preFlop(gameState: GameState, betCallback: (bet: number ) => void) {
+    const { blindStealingPosition } = readGameState(gameState)
+    const cards = this.getHoleCards(gameState);
+    const { pot, small_blind, minimum_raise } = gameState;
+    if (cards[0] && cards[1] && this.doWePlayIt(cards[0], cards[1]) ) {
+      // Same as v1
+      betCallback(this.getAllInAmount(gameState))
+    } else {
+      // v2 change: check if nobody played
+      if (blindStealingPosition && pot === small_blind + small_blind * 2) {
+        betCallback(minimum_raise)
+        return
+      }
+      betCallback(0)
     }
   }
 
-  minBet(gameState: any) {
-    
+  async postFlop(gameState: GameState, betCallback: (bet: number ) => void, blindStealingPosition: boolean, nobodyPlayedPostFlop: boolean) {
+    const rank = await this.getRanking(gameState)
+    // steal the blind if nobody played
 
-    return 0 
+    if (rank > 1) {
+      betCallback(this.getAllInAmount(gameState))
+    } else if (nobodyPlayedPostFlop) {
+      betCallback(gameState.small_blind * 2)
+    } else {
+      betCallback(0)
+    }
+   
   }
 
   oneOfCardContains(cardA: CardType, cardB: CardType, rank: string) {
@@ -124,7 +145,7 @@ export class Player {
     return gameState.
   } */
 
-  public goAllIn(gameState: any): number {
+  public getAllInAmount(gameState: any): number {
     return gameState.players.find(
       (player: any) => player.name === "PokerJS",
     )?.stack || 0;
@@ -136,28 +157,35 @@ export class Player {
     )?.hole_cards || [];
   }
 
-  async sendRankReq(gameState: any): Promise<any> {
+  getComCards(gameState: GameState): CardType[] {
+    return gameState.community_cards || [];
+  }
+
+  async getRanking(gameState: any): Promise<number> {
     const url = "https://rainman.leanpoker.org/rank";
     const holeCards = this.getHoleCards(gameState);
-    console.error("cards", JSON.stringify({ cards: holeCards }));
-
-    const comCards = gameState?.community_cards || [];
-
+    const comCards = this.getComCards(gameState);
     const combinedCards = [...holeCards, ...comCards];
 
     let formData = new FormData();
     formData.append("cards", JSON.stringify(combinedCards));
 
     if (combinedCards.length >= 5) {
-      const result = await fetch(url, {
-        method: "POST",
-        body: formData,
-      });
-      const data = await result.json();
-      return data;
+      try {
+        const result = await fetch(url, {
+          method: "POST",
+          body: formData,
+        });
+        const data = await result.json();
+        console.error("ranking data", JSON.stringify(data, null, 4));
+        return data?.rank;
+      } catch (err) {
+        console.error('rank', err)
+      }
+     
     }
 
-    return {};
+    return 0;
   }
 }
 
