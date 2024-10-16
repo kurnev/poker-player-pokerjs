@@ -23,11 +23,16 @@ export function readGameState(gameState: GameState) {
   // if we are the dealer, we are one before the dealer or the one after the dealer
   const blindStealingPosition = dealer === 7 || dealer === 6 || dealer === 0 || dealer === 5
 
+  
+  const noRemainingPlayers = players.filter((player) => player.status === 'active').length
+
   const preFlop = communityCards.length === 0
 
   const postFlop = communityCards.length > 0
 
   const nobodyPlayedPostFlop = postFlop && currentBuyIn === 0
 
-  return { selfPlayer, holeCards, communityCards, blindStealingPosition, preFlop, postFlop, nobodyPlayedPostFlop }
+  const nobodyPlayedPreFlop = postFlop && currentBuyIn === 0
+
+  return { selfPlayer, holeCards, communityCards, blindStealingPosition, preFlop, postFlop, nobodyPlayedPostFlop, noRemainingPlayers }
 }

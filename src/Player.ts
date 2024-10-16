@@ -125,7 +125,7 @@ export class Player {
   }
 
   preFlop(gameState: GameState, betCallback: (bet: number ) => void) {
-    const { blindStealingPosition } = readGameState(gameState)
+    const { blindStealingPosition, noRemainingPlayers } = readGameState(gameState)
     const cards = this.getHoleCards(gameState);
     const { pot, small_blind, minimum_raise } = gameState;
     if (cards[0] && cards[1] && this.doWePlayIt(cards[0], cards[1]) ) {
@@ -134,6 +134,10 @@ export class Player {
     } else {
       // v2 change: check if nobody played
       if (blindStealingPosition && pot === small_blind + small_blind * 2) {
+        betCallback(minimum_raise)
+        return
+      }
+      if (noRemainingPlayers <= 3 && pot === small_blind + small_blind * 2) {
         betCallback(minimum_raise)
         return
       }
