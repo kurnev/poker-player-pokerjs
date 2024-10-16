@@ -13,7 +13,7 @@
     },
     "exclude": [
         "out/*",
-        "src/*.test.ts",
+        "src/test.ts",
         "node_modules",
         "jest.config.js",
         "src/*.test.ts",
