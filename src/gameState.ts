@@ -21,7 +21,7 @@ export function readGameState(gameState: GameState) {
   )
 
   // if we are the dealer, we are one before the dealer or the one after the dealer
-  const blindStealingPosition = dealer === 7 || dealer === 6 || dealer === 0
+  const blindStealingPosition = dealer === 7 || dealer === 6 || dealer === 0 || dealer === 5
 
   const preFlop = communityCards.length === 0
 
